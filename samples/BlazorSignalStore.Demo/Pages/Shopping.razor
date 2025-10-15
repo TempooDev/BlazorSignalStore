@@ -36,7 +36,7 @@
                                             <span class="h6 text-success mb-0">$@product.Price</span>
                                             <div class="btn-group" role="group">
                                                 @{
-                                                    var quantity = CartStore.GetProductQuantity(product.Id);
+                                                    var quantity = GetReactiveProductQuantity(product.Id);
                                                 }
                                                 @if (quantity > 0)
                                                 {
@@ -84,9 +84,17 @@
 
 @code {
     private Func<List<Product>> products = default!;
+    private Func<List<CartItem>> cartItems = default!;
 
     protected override void OnInitialized()
     {
         products = this.useSignal(CartStore.Products);
+        cartItems = this.useSignal(CartStore.CartItems);
+    }
+
+    private int GetReactiveProductQuantity(int productId)
+    {
+        // Use the reactive cartItems signal to get the quantity
+        return cartItems().FirstOrDefault(item => item.Product.Id == productId)?.Quantity ?? 0;
     }
 }
