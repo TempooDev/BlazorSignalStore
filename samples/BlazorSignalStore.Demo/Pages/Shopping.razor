@@ -1,0 +1,92 @@
+@page "/shopping"
+@using BlazorSignalStore.Core
+@using BlazorSignalStore.Demo.Store
+@inject ShoppingCartStore CartStore
+
+<PageTitle>Shopping Demo - BlazorSignalStore</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4 text-center mb-4">🛒 Shopping Cart Demo</h1>
+            <p class="lead text-center mb-5">
+                This demo shows how multiple components can share the same reactive state using BlazorSignalStore.
+                Add items to your cart and watch all components update automatically!
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Product List -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">🏪 Available Products</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @foreach (var product in products())
+                        {
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card h-100 border-light">
+                                    <div class="card-body d-flex flex-column">
+                                        <h6 class="card-title">@product.Name</h6>
+                                        <p class="card-text text-muted small flex-grow-1">@product.Description</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="h6 text-success mb-0">$@product.Price</span>
+                                            <div class="btn-group" role="group">
+                                                @{
+                                                    var quantity = CartStore.GetProductQuantity(product.Id);
+                                                }
+                                                @if (quantity > 0)
+                                                {
+                                                    <button class="btn btn-outline-danger btn-sm"
+                                                        @onclick="() => CartStore.RemoveFromCart(product.Id)">
+                                                        −
+                                                    </button>
+                                                    <span class="btn btn-outline-secondary btn-sm disabled">@quantity</span>
+                                                }
+                                                <button class="btn btn-success btn-sm"
+                                                    @onclick="() => CartStore.AddToCart(product)">
+                                                    @(quantity > 0 ? "+" : "Add")
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shopping Cart Sidebar -->
+        <div class="col-lg-4">
+            <ShoppingCartSummary />
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Cart Status Bar -->
+        <div class="col-12">
+            <CartStatusBar />
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- Cart Items List -->
+        <div class="col-12">
+            <CartItemsList />
+        </div>
+    </div>
+</div>
+
+@code {
+    private Func<List<Product>> products = default!;
+
+    protected override void OnInitialized()
+    {
+        products = this.useSignal(CartStore.Products);
+    }
+}

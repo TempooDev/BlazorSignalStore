@@ -1,0 +1,20 @@
+﻿@page "/counter"
+@using BlazorSignalStore.Demo.Store
+@using BlazorSignalStore.Core
+@inject CounterStore CounterStore
+
+@code {
+    private Func<int>? count;
+    private Func<string>? label;
+
+    protected override void OnInitialized()
+    {
+        count = this.useSignal(CounterStore.Count);
+        label = this.useSignal(CounterStore.Label);
+    }
+}
+
+<h3>@(label != null ? label() : "Loading...")</h3>
+<button @onclick="CounterStore.Increment">+</button>
+<button @onclick="CounterStore.Decrement">-</button>
+<p>Value: @(count != null ? count() : 0)</p>

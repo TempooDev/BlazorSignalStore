@@ -1,0 +1,79 @@
+﻿@page "/"
+
+<PageTitle>BlazorSignalStore Demo</PageTitle>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12 text-center">
+            <h1 class="display-4 mb-4">🚀 Welcome to BlazorSignalStore</h1>
+            <p class="lead mb-5">
+                A powerful reactive state management library for Blazor applications,
+                inspired by Angular Signals with React-like hooks.
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">🔢 Counter Demo</h4>
+                    <p class="card-text">
+                        A simple demonstration of reactive signals with automatic UI updates.
+                        Shows basic signal operations and computed properties.
+                    </p>
+                    <a href="/counter" class="btn btn-primary">
+                        <i class="fas fa-play me-2"></i>Try Counter Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm border-success">
+                <div class="card-body">
+                    <h4 class="card-title">🛒 Shopping Cart Demo</h4>
+                    <p class="card-text">
+                        <strong>Featured Demo:</strong> Multiple components sharing the same reactive state.
+                        Add items to cart and watch all components update automatically!
+                    </p>
+                    <a href="/shopping" class="btn btn-success">
+                        <i class="fas fa-shopping-cart me-2"></i>Try Shopping Demo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <h5 class="alert-heading">🌟 Key Features Demonstrated</h5>
+                <ul class="mb-0">
+                    <li><strong>Automatic State Synchronization:</strong> Multiple components stay in sync without
+                        manual effort</li>
+                    <li><strong>Reactive Computed Properties:</strong> Derived values update automatically when
+                        dependencies change</li>
+                    <li><strong>Type-Safe Signals:</strong> Full IntelliSense and compile-time validation</li>
+                    <li><strong>Store-Based Architecture:</strong> Organized, scalable state management patterns</li>
+                    <li><strong>Blazor Integration:</strong> Works seamlessly with both Server and WebAssembly</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <h3>🔧 Quick Start</h3>
+            <pre class="bg-light p-3 rounded text-start"><code>// 1. Install the package
+dotnet add package BlazorSignalStore
+
+// 2. Register your stores
+builder.Services.AddSignalStore&lt;MyStore&gt;();
+
+// 3. Use in components
+@@inject MyStore Store
+var count = this.useSignal(Store.Counter);</code></pre>
+        </div>
+    </div>
+</div>

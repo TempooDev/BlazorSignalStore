@@ -1,0 +1,97 @@
+@using BlazorSignalStore.Core
+@using BlazorSignalStore.Demo.Store
+@inject ShoppingCartStore CartStore
+
+<div class="card shadow-sm">
+    <div class="card-header bg-info text-white">
+        <h4 class="mb-0">📦 Cart Items</h4>
+    </div>
+    <div class="card-body">
+        @if (isEmpty())
+        {
+            <div class="text-center text-muted py-4">
+                <p class="mb-0">No items in your cart yet.</p>
+                <small>Browse products above to add them to your cart!</small>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Subtotal</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in cartItems())
+                        {
+                            <tr>
+                                <td>
+                                    <div>
+                                        <strong>@item.Product.Name</strong>
+                                        <br>
+                                        <small class="text-muted">@item.Product.Description</small>
+                                    </div>
+                                </td>
+                                <td class="align-middle">
+                                    <span class="text-success">$@item.Product.Price.ToString("F2")</span>
+                                </td>
+                                <td class="align-middle">
+                                    <span class="badge bg-primary rounded-pill">@item.Quantity</span>
+                                </td>
+                                <td class="align-middle">
+                                    <strong class="text-success">$@((item.Product.Price * item.Quantity).ToString("F2"))</strong>
+                                </td>
+                                <td class="align-middle">
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-outline-danger btn-sm" 
+                                                @onclick="() => CartStore.RemoveFromCart(item.Product.Id)"
+                                                title="Remove one">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm" 
+                                                @onclick="() => CartStore.AddToCart(item.Product)"
+                                                title="Add one">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <th colspan="3">Total</th>
+                            <th class="text-success">@formattedTotal()</th>
+                            <th>
+                                <button class="btn btn-outline-danger btn-sm" 
+                                        @onclick="CartStore.ClearCart"
+                                        title="Clear all items">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private Func<bool> isEmpty = default!;
+    private Func<List<CartItem>> cartItems = default!;
+    private Func<string> formattedTotal = default!;
+
+    protected override void OnInitialized()
+    {
+        isEmpty = this.useSignal(CartStore.IsEmpty);
+        cartItems = this.useSignal(CartStore.CartItems);
+        formattedTotal = this.useSignal(CartStore.FormattedTotal);
+    }
+}

@@ -1,0 +1,57 @@
+@using BlazorSignalStore.Core
+@using BlazorSignalStore.Demo.Store
+@inject ShoppingCartStore CartStore
+
+<div class="card shadow-sm">
+    <div class="card-header bg-success text-white">
+        <h4 class="mb-0">🛒 Your Cart</h4>
+    </div>
+    <div class="card-body">
+        @if (isEmpty())
+        {
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-shopping-cart fa-3x mb-3 opacity-50"></i>
+                <p class="mb-0">Your cart is empty</p>
+                <small>Add some products to get started!</small>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted">Items:</span>
+                <span class="badge bg-primary rounded-pill">@itemCount()</span>
+            </div>
+            
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted">Total:</span>
+                <span class="h5 text-success mb-0">@formattedTotal()</span>
+            </div>
+
+            <hr>
+            
+            <div class="d-grid gap-2">
+                <button class="btn btn-success">
+                    <i class="fas fa-credit-card me-2"></i>
+                    Checkout
+                </button>
+                <button class="btn btn-outline-danger btn-sm" @onclick="CartStore.ClearCart">
+                    <i class="fas fa-trash me-2"></i>
+                    Clear Cart
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private Func<bool> isEmpty = default!;
+    private Func<int> itemCount = default!;
+    private Func<string> formattedTotal = default!;
+
+    protected override void OnInitialized()
+    {
+        isEmpty = this.useSignal(CartStore.IsEmpty);
+        itemCount = this.useSignal(CartStore.ItemCount);
+        formattedTotal = this.useSignal(CartStore.FormattedTotal);
+    }
+}

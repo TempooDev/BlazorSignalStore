@@ -1,0 +1,47 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorSignalStore", "src\BlazorSignalStore\BlazorSignalStore.csproj", "{8637488A-93D6-4E25-8073-1C6C8689903E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{AF7BC6D4-C97A-4B0C-9AD6-664B86769ED7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorSignalStore.Demo", "samples\BlazorSignalStore.Demo\BlazorSignalStore.Demo.csproj", "{4ECA6782-8688-4254-8EA2-094601706A83}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{5467DF12-A3C2-4A55-978E-EA2360C7BDFC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorSignalStore.Tests", "tests\BlazorSignalStore.Tests\BlazorSignalStore.Tests.csproj", "{A04121DB-CB66-4F23-8D49-4E1CB98B7027}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4B981C5C-AD25-453D-983D-26253A335B7E}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8637488A-93D6-4E25-8073-1C6C8689903E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8637488A-93D6-4E25-8073-1C6C8689903E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8637488A-93D6-4E25-8073-1C6C8689903E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8637488A-93D6-4E25-8073-1C6C8689903E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4ECA6782-8688-4254-8EA2-094601706A83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4ECA6782-8688-4254-8EA2-094601706A83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4ECA6782-8688-4254-8EA2-094601706A83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4ECA6782-8688-4254-8EA2-094601706A83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A04121DB-CB66-4F23-8D49-4E1CB98B7027}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A04121DB-CB66-4F23-8D49-4E1CB98B7027}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A04121DB-CB66-4F23-8D49-4E1CB98B7027}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A04121DB-CB66-4F23-8D49-4E1CB98B7027}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8637488A-93D6-4E25-8073-1C6C8689903E} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{4ECA6782-8688-4254-8EA2-094601706A83} = {AF7BC6D4-C97A-4B0C-9AD6-664B86769ED7}
+		{A04121DB-CB66-4F23-8D49-4E1CB98B7027} = {5467DF12-A3C2-4A55-978E-EA2360C7BDFC}
+	EndGlobalSection
+EndGlobal

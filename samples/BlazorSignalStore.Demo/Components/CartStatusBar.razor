@@ -1,0 +1,73 @@
+@using BlazorSignalStore.Core
+@using BlazorSignalStore.Demo.Store
+@inject ShoppingCartStore CartStore
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <div class="d-flex flex-column">
+                    <span class="h4 text-primary mb-0">@itemCount()</span>
+                    <small class="text-muted">Items in Cart</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex flex-column">
+                    <span class="h4 text-success mb-0">@formattedTotal()</span>
+                    <small class="text-muted">Total Value</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex flex-column">
+                    <span class="h4 text-info mb-0">@cartItems().Count</span>
+                    <small class="text-muted">Unique Products</small>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex flex-column">
+                    <span class="h4 mb-0" style="color: @(isEmpty() ? "#dc3545" : "#28a745")">
+                        @(isEmpty() ? "Empty" : "Ready")
+                    </span>
+                    <small class="text-muted">Cart Status</small>
+                </div>
+            </div>
+        </div>
+
+        @if (!isEmpty())
+        {
+            <div class="progress mt-3" style="height: 8px;">
+                <div class="progress-bar bg-success" role="progressbar"
+                    style="width: @(Math.Min(totalPrice() / 1000 * 100, 100))%">
+                </div>
+            </div>
+            <small class="text-muted d-block text-center mt-1">
+                @if (totalPrice() >= 1000)
+                {
+                    <span class="text-success">🎉 Congratulations! You qualify for free shipping!</span>
+                }
+                else
+                {
+                    var remaining = 1000 - totalPrice();
+                    <span>Add $@remaining.ToString("F2") more for free shipping</span>
+                }
+            </small>
+        }
+    </div>
+</div>
+
+@code {
+    private Func<int> itemCount = default!;
+    private Func<string> formattedTotal = default!;
+    private Func<decimal> totalPrice = default!;
+    private Func<List<CartItem>> cartItems = default!;
+    private Func<bool> isEmpty = default!;
+
+    protected override void OnInitialized()
+    {
+        itemCount = this.useSignal(CartStore.ItemCount);
+        formattedTotal = this.useSignal(CartStore.FormattedTotal);
+        totalPrice = this.useSignal(CartStore.TotalPrice);
+        cartItems = this.useSignal(CartStore.CartItems);
+        isEmpty = this.useSignal(CartStore.IsEmpty);
+    }
+}
