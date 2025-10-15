@@ -1,0 +1,533 @@
+@page "/api-demo"
+@using BlazorSignalStore.Core
+@using BlazorSignalStore.Demo.Store
+@inject ApiDataStore ApiStore
+@implements IDisposable
+
+<PageTitle>API Caching Demo - BlazorSignalStore</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4 text-center mb-4">🌐 API Caching Demo</h1>
+            <p class="lead text-center mb-5">
+                This demo shows how BlazorSignalStore can be used to cache API responses and avoid redundant requests.
+                Multiple components can share the same data without triggering duplicate API calls.
+            </p>
+        </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">🎛️ API Control Panel</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" @onclick="LoadAllData" disabled="@isAnyLoading()">
+                                    @if (isAnyLoading())
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    }
+                                    Load All Data
+                                </button>
+                                <button class="btn btn-warning" @onclick="RefreshAllData" disabled="@isAnyLoading()">
+                                    Force Refresh All
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-outline-danger" @onclick="ClearCache">
+                                    Clear Cache
+                                </button>
+                                <small class="text-muted">
+                                    Data freshness: 10 seconds. Check console for detailed logs.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Auto-Refresh Countdown -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="alert alert-info d-flex align-items-center">
+                                <i class="fas fa-clock me-2"></i>
+                                <span>
+                                    <strong>Auto-refresh demonstration:</strong>
+                                    @if (_secondsUntilRefresh == 0)
+                                    {
+                                        <span class="text-success">Refreshing @GetNextDataToRefresh() now! ⟳</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@GetNextDataToRefresh() refresh in @(10 - _secondsUntilRefresh) seconds</span>
+                                        <div class="progress ms-2" style="width: 200px; height: 6px;">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                style="width: @((_secondsUntilRefresh * 100) / 10)%"></div>
+                                        </div>
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Logs -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">📊 Real-time Activity Logs</h5>
+                </div>
+                <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+                    @if (activityLogs().Any())
+                    {
+                        @foreach (var log in activityLogs())
+                        {
+                            <div class="d-flex align-items-center mb-1">
+                                <small class="font-monospace text-muted">@log</small>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <small class="text-muted">No activity yet. Load some data to see logs.</small>
+                    }
+                    
+                    @if (lastRefreshedData() != null)
+                    {
+                        <div class="mt-2 pt-2 border-top">
+                            <small class="text-info">
+                                <strong>Next auto-refresh:</strong> @GetNextDataToRefresh()
+                            </small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Status Bar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center justify-content-center">
+                                @if (isLoadingCategories())
+                                {
+                                    <span class="spinner-border spinner-border-sm text-primary me-2"></span>
+                                    <span class="text-primary">Loading Categories...</span>
+                                }
+                                else if (hasCategories())
+                                {
+                                    <span class="text-success">✅ Categories Loaded</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">⏸️ Categories Not Loaded</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center justify-content-center">
+                                @if (isLoadingUserPreferences())
+                                {
+                                    <span class="spinner-border spinner-border-sm text-primary me-2"></span>
+                                    <span class="text-primary">Loading Preferences...</span>
+                                }
+                                else if (hasUserPreferences())
+                                {
+                                    <span class="text-success">✅ Preferences Loaded</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">⏸️ Preferences Not Loaded</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center justify-content-center">
+                                @if (isLoadingFilters())
+                                {
+                                    <span class="spinner-border spinner-border-sm text-primary me-2"></span>
+                                    <span class="text-primary">Loading Filters...</span>
+                                }
+                                else if (hasFilters())
+                                {
+                                    <span class="text-success">✅ Filters Loaded</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">⏸️ Filters Not Loaded</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex align-items-center justify-content-center">
+                                @if (hasAnyError())
+                                {
+                                    <span class="text-danger">❌ Errors Detected</span>
+                                }
+                                else if (hasCategories() && hasUserPreferences() && hasFilters())
+                                {
+                                    <span class="text-success">🎉 All Data Ready</span>
+                                }
+                                else
+                                {
+                                    <span class="text-info">📡 Ready to Load</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Categories Panel -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">📂 Categories</h6>
+                    <button class="btn btn-sm btn-outline-light" @onclick="LoadCategoriesOnly"
+                        disabled="@isLoadingCategories()">
+                        @if (isLoadingCategories())
+                        {
+                            <span class="spinner-border spinner-border-sm"></span>
+                        }
+                        else
+                        {
+                            <span>🔄</span>
+                        }
+                    </button>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(categoriesError()))
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> @categoriesError()
+                        </div>
+                    }
+                    else if (categories()?.Any() == true)
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var category in categories()!)
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>@category.Icon @category.Name</span>
+                                    @if (category.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">
+                            <p>No categories loaded</p>
+                            <small>Click the refresh button to load data</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- User Preferences Panel -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">👤 User Preferences</h6>
+                    <button class="btn btn-sm btn-outline-light" @onclick="LoadUserPreferencesOnly"
+                        disabled="@isLoadingUserPreferences()">
+                        @if (isLoadingUserPreferences())
+                        {
+                            <span class="spinner-border spinner-border-sm"></span>
+                        }
+                        else
+                        {
+                            <span>🔄</span>
+                        }
+                    </button>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(userPreferencesError()))
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> @userPreferencesError()
+                        </div>
+                    }
+                    else if (userPreferences() != null)
+                    {
+                        var prefs = userPreferences()!;
+                        <div class="mb-3">
+                            <strong>Theme:</strong> @prefs.Theme
+                        </div>
+                        <div class="mb-3">
+                            <strong>Language:</strong> @prefs.Language
+                        </div>
+                        <div class="mb-3">
+                            <strong>Currency:</strong> @prefs.Currency
+                        </div>
+                        <div class="mb-3">
+                            <strong>Notifications:</strong>
+                            <ul class="list-unstyled mt-1">
+                                <li>📧 Email: @(prefs.NotificationSettings.EmailEnabled ? "✅" : "❌")</li>
+                                <li>📱 Push: @(prefs.NotificationSettings.PushEnabled ? "✅" : "❌")</li>
+                                <li>📞 SMS: @(prefs.NotificationSettings.SmsEnabled ? "✅" : "❌")</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong>Favorite Categories:</strong>
+                            @if (favoriteCategories().Any())
+                            {
+                                <div class="mt-2">
+                                    @foreach (var favCat in favoriteCategories())
+                                    {
+                                        <span class="badge bg-primary me-1">@favCat.Icon @favCat.Name</span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-muted">Load categories to see favorites</div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">
+                            <p>No preferences loaded</p>
+                            <small>Click the refresh button to load data</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Panel -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">🔍 Available Filters</h6>
+                    <button class="btn btn-sm btn-outline-dark" @onclick="LoadFiltersOnly"
+                        disabled="@isLoadingFilters()">
+                        @if (isLoadingFilters())
+                        {
+                            <span class="spinner-border spinner-border-sm"></span>
+                        }
+                        else
+                        {
+                            <span>🔄</span>
+                        }
+                    </button>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(filtersError()))
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> @filtersError()
+                        </div>
+                    }
+                    else if (filters()?.Any() == true)
+                    {
+                        @foreach (var filter in filters()!)
+                        {
+                            <div class="mb-3">
+                                <strong>@filter.DisplayName</strong>
+                                <span class="badge bg-secondary ms-2">@filter.Type</span>
+                                <div class="mt-1">
+                                    @foreach (var option in filter.Options.Take(3))
+                                    {
+                                        <span class="badge bg-light text-dark me-1">@option</span>
+                                    }
+                                    @if (filter.Options.Count > 3)
+                                    {
+                                        <span class="text-muted">+@(filter.Options.Count - 3) more</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">
+                            <p>No filters loaded</p>
+                            <small>Click the refresh button to load data</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cache Info -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h6 class="mb-0">💡 How API Caching Works</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>🚀 Performance Benefits:</h6>
+                            <ul class="list-unstyled">
+                                <li>✅ <strong>Reduced API Calls:</strong> Data is cached for 5 minutes</li>
+                                <li>✅ <strong>Duplicate Prevention:</strong> Multiple simultaneous requests are merged
+                                </li>
+                                <li>✅ <strong>Shared State:</strong> All components use the same cached data</li>
+                                <li>✅ <strong>Reactive Updates:</strong> All components update when data changes</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>🔄 Try These Actions:</h6>
+                            <ul class="list-unstyled">
+                                <li>🔄 Click "Load All Data" multiple times - only first call hits API</li>
+                                <li>🔄 Refresh individual sections - shows independent caching</li>
+                                <li>🔄 Open browser console to see detailed API call logs</li>
+                                <li>🔄 Clear cache and reload to see fresh API calls</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Reactive signals
+    private Func<bool> isLoadingCategories = default!;
+    private Func<bool> isLoadingUserPreferences = default!;
+    private Func<bool> isLoadingFilters = default!;
+    private Func<bool> isAnyLoading = default!;
+    private Func<bool> hasAnyError = default!;
+
+    private Func<List<Category>?> categories = default!;
+    private Func<UserPreferences?> userPreferences = default!;
+    private Func<List<Filter>?> filters = default!;
+    
+    // New signals for activity logs and status
+    private Func<List<string>> activityLogs = default!;
+    private Func<string?> lastRefreshedData = default!;
+
+    private Func<string?> categoriesError = default!;
+    private Func<string?> userPreferencesError = default!;
+    private Func<string?> filtersError = default!;
+
+    private Func<bool> hasCategories = default!;
+    private Func<bool> hasUserPreferences = default!;
+    private Func<bool> hasFilters = default!;
+    private Func<List<Category>> favoriteCategories = default!;
+
+    private Timer? _refreshTimer;
+    private int _secondsUntilRefresh = 0;
+
+    protected override void OnInitialized()
+    {
+        // Subscribe to all signals
+        isLoadingCategories = this.useSignal(ApiStore.IsLoadingCategories);
+        isLoadingUserPreferences = this.useSignal(ApiStore.IsLoadingUserPreferences);
+        isLoadingFilters = this.useSignal(ApiStore.IsLoadingFilters);
+        isAnyLoading = this.useSignal(ApiStore.IsAnyLoading);
+        hasAnyError = this.useSignal(ApiStore.HasAnyError);
+
+        categories = this.useSignal(ApiStore.Categories);
+        userPreferences = this.useSignal(ApiStore.UserPreferences);
+        filters = this.useSignal(ApiStore.AvailableFilters);
+
+        categoriesError = this.useSignal(ApiStore.CategoriesError);
+        userPreferencesError = this.useSignal(ApiStore.UserPreferencesError);
+        filtersError = this.useSignal(ApiStore.FiltersError);
+
+        hasCategories = this.useSignal(ApiStore.HasCategories);
+        hasUserPreferences = this.useSignal(ApiStore.HasUserPreferences);
+        hasFilters = this.useSignal(ApiStore.HasFilters);
+        favoriteCategories = this.useSignal(ApiStore.FavoriteCategories);
+
+        // Subscribe to new signals
+        activityLogs = this.useSignal(ApiStore.ActivityLogs);
+        lastRefreshedData = this.useSignal(ApiStore.LastRefreshedData);
+
+        // Start timer to show refresh countdown and auto-refresh
+        _refreshTimer = new Timer(UpdateRefreshCountdown, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+    }
+
+    private async void UpdateRefreshCountdown(object? state)
+    {
+        _secondsUntilRefresh = (_secondsUntilRefresh + 1) % 11; // 0-10 countdown
+        
+        // Auto-refresh the next data source when countdown reaches 0
+        if (_secondsUntilRefresh == 0)
+        {
+            await ApiStore.AutoRefreshNextDataSource();
+        }
+        
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        _refreshTimer?.Dispose();
+    }
+
+    private async Task LoadAllData()
+    {
+        await ApiStore.LoadAllDataAsync();
+    }
+
+    private async Task RefreshAllData()
+    {
+        await ApiStore.LoadAllDataAsync(forceRefresh: true);
+        _secondsUntilRefresh = 0; // Reset countdown when forcing refresh
+    }
+
+    private async Task LoadCategoriesOnly()
+    {
+        await ApiStore.LoadCategoriesAsync();
+    }
+
+    private async Task LoadUserPreferencesOnly()
+    {
+        await ApiStore.LoadUserPreferencesAsync();
+    }
+
+    private async Task LoadFiltersOnly()
+    {
+        await ApiStore.LoadFiltersAsync();
+    }
+
+    private void ClearCache()
+    {
+        ApiStore.ClearCache();
+        _secondsUntilRefresh = 0; // Reset countdown when clearing cache
+    }
+
+    private string GetNextDataToRefresh()
+    {
+        return lastRefreshedData() switch
+        {
+            null or "Filters" => "Categories",
+            "Categories" => "UserPreferences", 
+            "UserPreferences" => "Filters",
+            _ => "Categories"
+        };
+    }
+}

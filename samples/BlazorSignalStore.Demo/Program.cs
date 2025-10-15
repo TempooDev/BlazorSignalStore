@@ -12,5 +12,6 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 builder.Services.AddSignalStore<CounterStore>();
 builder.Services.AddSignalStore<ShoppingCartStore>();
+builder.Services.AddSignalStore<ApiDataStore>();
 
 await builder.Build().RunAsync();
