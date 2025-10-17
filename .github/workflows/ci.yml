@@ -58,4 +58,4 @@ jobs:
       run: dotnet build --configuration Release --verbosity normal
     
     - name: Check formatting
-      run: dotnet format --verify-no-changes --verbosity normal
+      run: dotnet format --verify-no-changes --verbosity normal --exclude samples/

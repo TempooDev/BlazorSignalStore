@@ -306,11 +306,11 @@ namespace BlazorSignalStore.Demo.Store
         {
             var logs = ActivityLogs.Value.ToList();
             logs.Insert(0, $"[{DateTime.Now:HH:mm:ss}] {message}");
-            
+
             // Keep only last 10 entries
             if (logs.Count > 10)
                 logs = logs.Take(10).ToList();
-                
+
             ActivityLogs.Value = logs;
         }
 
