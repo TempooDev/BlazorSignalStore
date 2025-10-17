@@ -56,7 +56,7 @@ Before creating an issue, please:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/BlazorSignalStore.git
+   git clone https://github.com/TempooDev/BlazorSignalStore.git
    cd BlazorSignalStore
    ```
 
@@ -127,7 +127,7 @@ dotnet format
 ## Getting Help
 
 - Check the [documentation](docs/)
-- Look through existing [issues](https://github.com/yourusername/BlazorSignalStore/issues)
+- Look through existing [issues](https://github.com/TempooDev/BlazorSignalStore/issues)
 - Create a new issue with the question label
 
 ## Recognition

@@ -13,12 +13,11 @@
     <Company>BlazorSignalStore</Company>
     <Copyright>Copyright © 2025 BlazorSignalStore Contributors</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/yourusername/BlazorSignalStore</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/yourusername/BlazorSignalStore.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/TempooDev/BlazorSignalStore</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TempooDev/BlazorSignalStore.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>blazor;signalr;state-management;realtime;nuget</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageIcon>icon.png</PackageIcon>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     
     <!-- Source Link -->
@@ -28,7 +27,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     
     <!-- Version will be set by CI/CD pipeline -->
-    <Version>1.0.0</Version>
+    <Version>0.1.0</Version>
     <PackageVersion>$(Version)</PackageVersion>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>

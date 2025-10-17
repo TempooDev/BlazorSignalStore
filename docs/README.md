@@ -96,8 +96,8 @@ This includes:
 ## Getting Help
 
 - 📖 **Documentation**: Browse these docs for detailed information
-- 🐛 **Issues**: Report bugs or request features on [GitHub Issues](https://github.com/yourusername/BlazorSignalStore/issues)
-- 💬 **Discussions**: Ask questions in [GitHub Discussions](https://github.com/yourusername/BlazorSignalStore/discussions)
+- 🐛 **Issues**: Report bugs or request features on [GitHub Issues](https://github.com/TempooDev/BlazorSignalStore/issues)
+- 💬 **Discussions**: Ask questions in [GitHub Discussions](https://github.com/TempooDev/BlazorSignalStore/discussions)
 - 📧 **Email**: Contact the maintainers for private questions
 
 ## Contributing
