@@ -9,27 +9,47 @@ indent_style = space
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
+end_of_line = lf
 
 # C# files
 [*.cs]
 indent_size = 4
-end_of_line = crlf
+end_of_line = lf
 
 # MSBuild files
 [*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj}]
 indent_size = 2
+end_of_line = lf
 
 # XML project files
 [*.{props,targets,ruleset,config,nuspec,resx,vsixmanifest,vsct}]
 indent_size = 2
+end_of_line = lf
 
 # JSON files
 [*.json]
 indent_size = 2
+end_of_line = lf
 
 # YAML files
 [*.{yml,yaml}]
 indent_size = 2
+end_of_line = lf
+
+# Razor files
+[*.razor]
+indent_size = 4
+end_of_line = lf
+
+# HTML files
+[*.html]
+indent_size = 2
+end_of_line = lf
+
+# CSS files
+[*.css]
+indent_size = 2
+end_of_line = lf
 
 # Markdown files
 [*.md]
