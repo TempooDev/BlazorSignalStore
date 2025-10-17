@@ -14,6 +14,9 @@
 *.css text eol=lf
 *.js text eol=lf
 *.ts text eol=lf
+*.props text eol=lf
+*.targets text eol=lf
+*.config text eol=lf
 
 # Binary files should not be touched
 *.png binary
