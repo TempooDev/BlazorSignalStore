@@ -6,14 +6,14 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>BlazorSignalStore</PackageId>
-    <Version>1.0.0</Version>
+    <Version>0.1.1</Version>
     <Authors>Antonio Bermúdez Rodríguez</Authors>
     <Company>TempooDev</Company>
     <Description>A reactive state management library for Blazor applications using Angular Signals-inspired pattern. Provides Signal&lt;T&gt;, Computed&lt;T&gt;, and React-like hooks for efficient UI updates with automatic dependency tracking.</Description>
     <RepositoryUrl>https://github.com/TempooDev/BlazorSignalStore</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>blazor;signals;reactive;state-management;angular;hooks;computed;blazor-webassembly;blazor-server</PackageTags>
-    <PackageReleaseNotes>v1.0.0: Initial release with Signal&lt;T&gt;, Computed&lt;T&gt;, SignalHooks, React-like function syntax, and comprehensive Blazor integration.</PackageReleaseNotes>
+    <PackageReleaseNotes>v0.1.1: Fixed security vulnerabilities, improved CI/CD pipeline, and ensured cross-platform compatibility with consistent line endings.</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 

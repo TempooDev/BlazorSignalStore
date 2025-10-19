@@ -9,14 +9,14 @@
     <LangVersion>latest</LangVersion>
     
     <!-- Package Properties -->
-    <Authors>BlazorSignalStore Contributors</Authors>
-    <Company>BlazorSignalStore</Company>
-    <Copyright>Copyright © 2025 BlazorSignalStore Contributors</Copyright>
+    <Authors>Antonio Bermúdez Rodríguez</Authors>
+    <Company>TempooDev</Company>
+    <Copyright>Copyright © 2025 TempooDev</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/TempooDev/BlazorSignalStore</PackageProjectUrl>
     <RepositoryUrl>https://github.com/TempooDev/BlazorSignalStore.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>blazor;signalr;state-management;realtime;nuget</PackageTags>
+    <PackageTags>blazor;signals;reactive;state-management;angular;hooks;computed;blazor-webassembly;blazor-server</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     
@@ -27,7 +27,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     
     <!-- Version will be set by CI/CD pipeline -->
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <PackageVersion>$(Version)</PackageVersion>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
