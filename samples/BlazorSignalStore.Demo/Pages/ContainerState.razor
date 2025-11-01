@@ -1,0 +1,285 @@
+@page "/container-state"
+@using BlazorSignalStore.Demo.Store
+@inject ContainerStateService ContainerStateService
+@implements IDisposable
+
+<PageTitle>Container State Demo - BlazorSignalStore</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4 text-center mb-4">📦 Container State Pattern Demo</h1>
+            <p class="lead text-center mb-5">
+                This demo shows Microsoft's recommended Container State pattern for Blazor applications.
+                Instead of managing individual state properties, all related state is grouped into a single container.
+            </p>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">📊 Form Progress</h5>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-2" style="height: 25px;">
+                        <div class="progress-bar progress-bar-striped @(ContainerStateService.FormCompletionPercentage == 100 ? "bg-success" : "")"
+                             style="width: @ContainerStateService.FormCompletionPercentage%">
+                            @ContainerStateService.FormCompletionPercentage.ToString("F0")%
+                        </div>
+                    </div>
+                    <small class="text-muted">Complete all fields to enable submission</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Validation Errors -->
+    @if (ContainerStateService.ValidationErrors.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-triangle me-2"></i>Validation Errors:</h6>
+                    <ul class="mb-0">
+                        @foreach (var error in ContainerStateService.ValidationErrors)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Submission Result -->
+    @if (ContainerStateService.FormState.SubmissionResult != null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert @(ContainerStateService.FormState.SubmissionResult.Success ? "alert-success" : "alert-danger") alert-dismissible">
+                    <i class="fas @(ContainerStateService.FormState.SubmissionResult.Success ? "fa-check-circle" : "fa-times-circle") me-2"></i>
+                    @ContainerStateService.FormState.SubmissionResult.Message
+                    <button type="button" class="btn-close" @onclick="ContainerStateService.ClearSubmissionResult"></button>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Personal Information -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">👤 Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-control" 
+                               value="@ContainerStateService.FormState.PersonalInfo.FirstName"
+                               @onchange="@(e => UpdatePersonalInfo(e.Value?.ToString() ?? "", ContainerStateService.FormState.PersonalInfo.LastName, ContainerStateService.FormState.PersonalInfo.Email))"
+                               disabled="@ContainerStateService.FormState.IsSubmitting" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-control" 
+                               value="@ContainerStateService.FormState.PersonalInfo.LastName"
+                               @onchange="@(e => UpdatePersonalInfo(ContainerStateService.FormState.PersonalInfo.FirstName, e.Value?.ToString() ?? "", ContainerStateService.FormState.PersonalInfo.Email))"
+                               disabled="@ContainerStateService.FormState.IsSubmitting" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" 
+                               value="@ContainerStateService.FormState.PersonalInfo.Email"
+                               @onchange="@(e => UpdatePersonalInfo(ContainerStateService.FormState.PersonalInfo.FirstName, ContainerStateService.FormState.PersonalInfo.LastName, e.Value?.ToString() ?? ""))"
+                               disabled="@ContainerStateService.FormState.IsSubmitting" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Address Information -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">🏠 Address</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Street</label>
+                        <input type="text" class="form-control" 
+                               value="@ContainerStateService.FormState.Address.Street"
+                               @onchange="@(e => UpdateAddress(e.Value?.ToString() ?? "", ContainerStateService.FormState.Address.City, ContainerStateService.FormState.Address.PostalCode, ContainerStateService.FormState.Address.Country))"
+                               disabled="@ContainerStateService.FormState.IsSubmitting" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">City</label>
+                        <input type="text" class="form-control" 
+                               value="@ContainerStateService.FormState.Address.City"
+                               @onchange="@(e => UpdateAddress(ContainerStateService.FormState.Address.Street, e.Value?.ToString() ?? "", ContainerStateService.FormState.Address.PostalCode, ContainerStateService.FormState.Address.Country))"
+                               disabled="@ContainerStateService.FormState.IsSubmitting" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Postal Code</label>
+                        <input type="text" class="form-control" 
+                               value="@ContainerStateService.FormState.Address.PostalCode"
+                               @onchange="@(e => UpdateAddress(ContainerStateService.FormState.Address.Street, ContainerStateService.FormState.Address.City, e.Value?.ToString() ?? "", ContainerStateService.FormState.Address.Country))"
+                               disabled="@ContainerStateService.FormState.IsSubmitting" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Country</label>
+                        <select class="form-select" 
+                                value="@ContainerStateService.FormState.Address.Country"
+                                @onchange="@(e => UpdateAddress(ContainerStateService.FormState.Address.Street, ContainerStateService.FormState.Address.City, ContainerStateService.FormState.Address.PostalCode, e.Value?.ToString() ?? ""))"
+                                disabled="@ContainerStateService.FormState.IsSubmitting">
+                            <option value="">Select a country</option>
+                            <option value="Spain">Spain</option>
+                            <option value="France">France</option>
+                            <option value="Germany">Germany</option>
+                            <option value="Italy">Italy</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="United States">United States</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preferences -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">⚙️ Preferences</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Theme</label>
+                        <select class="form-select" 
+                                value="@ContainerStateService.FormState.Preferences.Theme"
+                                @onchange="@(e => UpdatePreferences(ContainerStateService.FormState.Preferences.EmailNotifications, ContainerStateService.FormState.Preferences.SmsNotifications, e.Value?.ToString() ?? "Light"))"
+                                disabled="@ContainerStateService.FormState.IsSubmitting">
+                            <option value="Light">Light</option>
+                            <option value="Dark">Dark</option>
+                            <option value="Auto">Auto</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   checked="@ContainerStateService.FormState.Preferences.EmailNotifications"
+                                   @onchange="@(e => UpdatePreferences(e.Value?.ToString() == "True", ContainerStateService.FormState.Preferences.SmsNotifications, ContainerStateService.FormState.Preferences.Theme))"
+                                   disabled="@ContainerStateService.FormState.IsSubmitting" />
+                            <label class="form-check-label">
+                                Email Notifications
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" 
+                                   checked="@ContainerStateService.FormState.Preferences.SmsNotifications"
+                                   @onchange="@(e => UpdatePreferences(ContainerStateService.FormState.Preferences.EmailNotifications, e.Value?.ToString() == "True", ContainerStateService.FormState.Preferences.Theme))"
+                                   disabled="@ContainerStateService.FormState.IsSubmitting" />
+                            <label class="form-check-label">
+                                SMS Notifications
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <button type="button" 
+                            class="btn btn-primary btn-lg me-3" 
+                            @onclick="ContainerStateService.SubmitFormAsync"
+                            disabled="@(!ContainerStateService.CanSubmit)">
+                        @if (ContainerStateService.FormState.IsSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                        }
+                        Submit Form
+                    </button>
+                    <button type="button" 
+                            class="btn btn-outline-secondary btn-lg" 
+                            @onclick="ContainerStateService.ResetForm"
+                            disabled="@ContainerStateService.FormState.IsSubmitting">
+                        Reset Form
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container State Information -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">🔍 Container State Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>State Properties:</h6>
+                            <ul class="list-unstyled">
+                                <li><strong>Is Form Valid:</strong> <span class="badge @(ContainerStateService.IsFormValid ? "bg-success" : "bg-danger")">@ContainerStateService.IsFormValid</span></li>
+                                <li><strong>Can Submit:</strong> <span class="badge @(ContainerStateService.CanSubmit ? "bg-success" : "bg-danger")">@ContainerStateService.CanSubmit</span></li>
+                                <li><strong>Is Submitting:</strong> <span class="badge @(ContainerStateService.FormState.IsSubmitting ? "bg-warning" : "bg-secondary")">@ContainerStateService.FormState.IsSubmitting</span></li>
+                                <li><strong>Completion:</strong> <span class="badge bg-info">@ContainerStateService.FormCompletionPercentage.ToString("F0")%</span></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Benefits of Container State:</h6>
+                            <ul class="small">
+                                <li>Reduces change notifications</li>
+                                <li>Groups related state together</li>
+                                <li>Simplifies state updates</li>
+                                <li>Improves performance</li>
+                                <li>Immutable state with records</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Additional Container State Info Component -->
+            <ContainerStateInfo ContainerState="ContainerStateService" />
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        ContainerStateService.OnChange += StateHasChanged;
+    }
+
+    private void UpdatePersonalInfo(string firstName, string lastName, string email)
+    {
+        ContainerStateService.UpdatePersonalInfo(firstName, lastName, email);
+    }
+
+    private void UpdateAddress(string street, string city, string postalCode, string country)
+    {
+        ContainerStateService.UpdateAddress(street, city, postalCode, country);
+    }
+
+    private void UpdatePreferences(bool emailNotifications, bool smsNotifications, string theme)
+    {
+        ContainerStateService.UpdatePreferences(emailNotifications, smsNotifications, theme);
+    }
+
+    public void Dispose()
+    {
+        ContainerStateService.OnChange -= StateHasChanged;
+    }
+}

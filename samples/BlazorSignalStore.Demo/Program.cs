@@ -14,4 +14,7 @@ builder.Services.AddSignalStore<CounterStore>();
 builder.Services.AddSignalStore<ShoppingCartStore>();
 builder.Services.AddSignalStore<ApiDataStore>();
 
+// Register Container State Service (standard Blazor pattern)
+builder.Services.AddScoped<ContainerStateService>();
+
 await builder.Build().RunAsync();
