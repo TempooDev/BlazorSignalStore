@@ -13,6 +13,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddSignalStore<CounterStore>();
 builder.Services.AddSignalStore<ShoppingCartStore>();
 builder.Services.AddSignalStore<ApiDataStore>();
+builder.Services.AddSignalStore<SignalFormStore>();
 
 // Register Container State Service (standard Blazor pattern)
 builder.Services.AddScoped<ContainerStateService>();

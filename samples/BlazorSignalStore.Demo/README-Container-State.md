@@ -1,14 +1,15 @@
 # Container State Pattern Demo
 
-Este ejemplo demuestra el patrón **Container State** recomendado por Microsoft para la gestión eficiente del estado en aplicaciones Blazor.
+This example demonstrates the **Container State** pattern recommended by Microsoft for efficient state management in Blazor applications.
 
-## ¿Qué es el Container State Pattern?
+## What is the Container State Pattern?
 
-El Container State Pattern es una técnica de gestión de estado que agrupa múltiples propiedades de estado relacionadas en un único objeto contenedor, en lugar de manejarlas como propiedades individuales.
+The Container State Pattern is a state management technique that groups multiple related state properties into a single container object, instead of managing them as individual properties.
 
-## Problema que Resuelve
+## Problem it Solves
 
-### Enfoque Tradicional (Problemático):
+### Traditional Approach (Problematic):
+
 ```csharp
 public class FormService
 {
@@ -17,33 +18,35 @@ public class FormService
     public string Email { get; set; } = "";
     public string Street { get; set; } = "";
     public string City { get; set; } = "";
-    // ... más propiedades individuales
+    // ... more individual properties
     
     public event Action? OnChange;
     
     public void UpdateFirstName(string firstName)
     {
         FirstName = firstName;
-        OnChange?.Invoke(); // Notificación individual
+        OnChange?.Invoke(); // Individual notification
     }
     
     public void UpdateLastName(string lastName)
     {
         LastName = lastName;
-        OnChange?.Invoke(); // Notificación individual
+        OnChange?.Invoke(); // Individual notification
     }
-    // ... más métodos con notificaciones individuales
+    // ... more methods with individual notifications
 }
 ```
 
-**Problemas:**
-- Múltiples notificaciones de cambio
-- Estado disperso
-- Validación fragmentada
-- Lógica compleja de coordinación
-- Sobrecarga de rendimiento
+**Problems:**
 
-### Enfoque Container State (Solución):
+- Multiple change notifications
+- Scattered state
+- Fragmented validation
+- Complex coordination logic
+- Performance overhead
+
+### Container State Approach (Solution):
+
 ```csharp
 public class ContainerStateService
 {
@@ -63,7 +66,7 @@ public class ContainerStateService
                 Email = email
             }
         };
-        OnChange?.Invoke(); // Una sola notificación para toda la actualización
+        OnChange?.Invoke(); // Single notification for entire update
     }
 }
 
@@ -72,38 +75,41 @@ public record FormContainerState
     public PersonalInfo PersonalInfo { get; init; } = new();
     public Address Address { get; init; } = new();
     public UserPreferencesData Preferences { get; init; } = new();
-    // ... estado agrupado lógicamente
+    // ... logically grouped state
 }
 ```
 
-## Beneficios del Container State
+## Container State Benefits
 
-1. **Menos Notificaciones**: Una sola notificación por actualización de estado
-2. **Estado Agrupado**: Las propiedades relacionadas se mantienen juntas
-3. **Inmutabilidad**: Uso de records para estado inmutable
-4. **Validación Centralizada**: Lógica de validación en el contenedor
-5. **Mejor Rendimiento**: Menos actualizaciones de UI
-6. **Mantenibilidad**: Código más limpio y organizado
+1. **Fewer Notifications**: Single notification per state update
+2. **Grouped State**: Related properties stay together
+3. **Immutability**: Using records for immutable state
+4. **Centralized Validation**: Validation logic within the container
+5. **Better Performance**: Fewer UI updates
+6. **Maintainability**: Cleaner and more organized code
 
-## Características del Ejemplo
+## Example Features
 
-### Estructura del Estado
-- **PersonalInfo**: Información personal del usuario
-- **Address**: Datos de dirección
-- **Preferences**: Configuraciones del usuario
-- **Estados de UI**: Indicadores de carga y resultados
+### State Structure
 
-### Funcionalidades Demostradas
-- Formulario multi-sección
-- Validación en tiempo real
-- Barra de progreso
-- Manejo de estados de carga
-- Resultados de envío
-- Reset del formulario
+- **PersonalInfo**: User's personal information
+- **Address**: Address data
+- **Preferences**: User configuration settings
+- **UI States**: Loading indicators and results
 
-### Patrón de Actualización
+### Demonstrated Functionality
+
+- Multi-section form
+- Real-time validation
+- Progress bar
+- Loading state management
+- Submission results
+- Form reset
+
+### Update Pattern
+
 ```csharp
-// Actualización inmutable usando records
+// Immutable update using records
 _formState = _formState with
 {
     PersonalInfo = _formState.PersonalInfo with
@@ -113,29 +119,31 @@ _formState = _formState with
 };
 ```
 
-## Comparación con Signals
+## Comparison with Signals
 
-Este ejemplo muestra el enfoque estándar de Blazor **sin** usar Signals, siguiendo las recomendaciones oficiales de Microsoft. La gestión de estado se realiza mediante:
+This example shows the standard Blazor approach **without** using Signals, following Microsoft's official recommendations. State management is handled through:
 
-- Servicios Scoped registrados en DI
-- Eventos `OnChange` para notificaciones
-- Records inmutables para el estado
-- Patrón with-expressions para actualizaciones
+- Scoped services registered in DI
+- `OnChange` events for notifications
+- Immutable records for state
+- With-expressions pattern for updates
 
-## Cuándo Usar Container State
+## When to Use Container State
 
-✅ **Usar cuando:**
-- Tienes múltiples propiedades de estado relacionadas
-- Necesitas validación coordinada
-- Quieres reducir notificaciones de cambio
-- El estado tiene una estructura lógica clara
+✅ **Use when:**
 
-❌ **No usar cuando:**
-- Solo tienes 1-2 propiedades simples
-- El estado no está relacionado lógicamente
-- Necesitas actualizaciones muy granulares
+- You have multiple related state properties
+- You need coordinated validation
+- You want to reduce change notifications
+- The state has a clear logical structure
 
-## Referencias
+❌ **Don't use when:**
+
+- You only have 1-2 simple properties
+- The state is not logically related
+- You need very granular updates
+
+## References
 
 - [Microsoft Docs: Blazor State Management](https://learn.microsoft.com/en-us/aspnet/core/blazor/state-management)
 - [Container State Pattern](https://learn.microsoft.com/en-us/aspnet/core/blazor/state-management?view=aspnetcore-9.0#container-state)
