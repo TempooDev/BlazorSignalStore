@@ -1,0 +1,35 @@
+@using System.Diagnostics
+
+<div class="badge @BadgeClass fs-6">
+    🔄 Renders: @RenderCount
+    @if (ShowLastRender && LastRenderTime.HasValue)
+    {
+        <small class="ms-1">(@LastRenderTime.Value.ToString("HH:mm:ss.fff"))</small>
+    }
+</div>
+
+@code {
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public bool ShowLastRender { get; set; } = true;
+    [Parameter] public string BadgeClass { get; set; } = "bg-info text-white";
+    
+    private int RenderCount = 0;
+    private DateTime? LastRenderTime;
+    
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            RenderCount++;
+            LastRenderTime = DateTime.Now;
+            // No llamamos StateHasChanged aquí para evitar bucle infinito
+        }
+    }
+    
+    public void Reset()
+    {
+        RenderCount = 0;
+        LastRenderTime = null;
+        StateHasChanged();
+    }
+}

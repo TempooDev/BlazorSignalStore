@@ -1,0 +1,48 @@
+@using BlazorSignalStore.Demo.Store
+
+<div class="card mt-4">
+    <div class="card-header bg-info text-white">
+        <h6 class="mb-0">📊 Container State Pattern Benefits</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Traditional Approach Problems:</h6>
+                <ul class="small text-muted">
+                    <li>Multiple individual state properties</li>
+                    <li>Many change notifications</li>
+                    <li>Scattered validation logic</li>
+                    <li>Complex state coordination</li>
+                    <li>Performance overhead</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6>Container State Solutions:</h6>
+                <ul class="small text-success">
+                    <li>Single container object</li>
+                    <li>One change notification per update</li>
+                    <li>Centralized validation</li>
+                    <li>Immutable state with records</li>
+                    <li>Better performance</li>
+                </ul>
+            </div>
+        </div>
+        
+        <hr />
+        
+        <h6>Current Container State Structure:</h6>
+        <div class="bg-light p-3 rounded" style="font-family: monospace; font-size: 0.85em;">
+            <div><strong>FormContainerState</strong> {</div>
+            <div class="ms-3">PersonalInfo: { FirstName: "@ContainerState.FormState.PersonalInfo.FirstName", LastName: "@ContainerState.FormState.PersonalInfo.LastName", Email: "@ContainerState.FormState.PersonalInfo.Email" },</div>
+            <div class="ms-3">Address: { Street: "@ContainerState.FormState.Address.Street", City: "@ContainerState.FormState.Address.City", PostalCode: "@ContainerState.FormState.Address.PostalCode", Country: "@ContainerState.FormState.Address.Country" },</div>
+            <div class="ms-3">Preferences: { EmailNotifications: @ContainerState.FormState.Preferences.EmailNotifications.ToString().ToLower(), SmsNotifications: @ContainerState.FormState.Preferences.SmsNotifications.ToString().ToLower(), Theme: "@ContainerState.FormState.Preferences.Theme" },</div>
+            <div class="ms-3">IsSubmitting: @ContainerState.FormState.IsSubmitting.ToString().ToLower(),</div>
+            <div class="ms-3">SubmissionResult: @(ContainerState.FormState.SubmissionResult?.Success.ToString().ToLower() ?? "null")</div>
+            <div>}</div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public ContainerStateService ContainerState { get; set; } = default!;
+}
