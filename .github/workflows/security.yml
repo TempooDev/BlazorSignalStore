@@ -2,43 +2,45 @@ name: Security Scan
 
 on:
   schedule:
-    - cron: '0 2 * * 1' # Run every Monday at 2 AM
+    - cron: '0 2 * * 1' # Lunes 02:00
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  pull_request_target:
+    branches: [ main ]
+
+permissions:
+  contents: read
 
 jobs:
-  security-scan:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-    
-    - name: Restore dependencies
-      run: dotnet restore
-    
-    - name: Run security scan
-      run: |
-        dotnet list package --vulnerable --include-transitive 2>&1 | tee security-scan.log
-        if grep -q "has the following vulnerable packages" security-scan.log; then
-          echo "❌ Vulnerable packages found!"
-          exit 1
-        else
-          echo "✅ No vulnerable packages found."
-        fi
-
   dependency-review:
+    if: github.event_name == 'pull_request_target' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Dependency Review
-      uses: actions/dependency-review-action@v3
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v3
+
+  security-scan:
+    if: github.event_name != 'pull_request_target'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run security scan
+        run: |
+          dotnet list package --vulnerable --include-transitive 2>&1 | tee security-scan.log
+          if grep -q "has the following vulnerable packages" security-scan.log; then
+            echo "❌ Vulnerable packages found!"
+            exit 1
+          else
+            echo "✅ No vulnerable packages found."
+          fi
