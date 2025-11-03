@@ -5,55 +5,112 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+  packages: write
+
 env:
   DOTNET_VERSION: '8.0.x'
 
 jobs:
-  release:
+  verify-tag:
+    name: Verify tag is on main
     runs-on: ubuntu-latest
-    
+    outputs:
+      on_main: ${{ steps.check.outputs.on_main }}
+      version: ${{ steps.get_version.outputs.VERSION }}
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-    
-    - name: Extract version from tag
-      id: get_version
-      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-    
-    - name: Restore dependencies
-      run: dotnet restore
-    
-    - name: Build
-      run: dotnet build --configuration Release --no-restore -p:Version=${{ steps.get_version.outputs.VERSION }}
-    
-    - name: Test
-      run: dotnet test --configuration Release --no-build --verbosity normal
-    
-    - name: Pack NuGet package
-      run: dotnet pack src/BlazorSignalStore/BlazorSignalStore.csproj --configuration Release --no-build -p:PackageVersion=${{ steps.get_version.outputs.VERSION }} --output ./artifacts
-    
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: nuget-packages
-        path: ./artifacts/*.nupkg
-    
-    - name: Publish to NuGet
-      run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
-      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-    
-    - name: Create GitHub Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ steps.get_version.outputs.VERSION }}
-        draft: false
-        prerelease: false
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch main
+        run: |
+          git fetch origin +refs/heads/main:refs/remotes/origin/main --prune --no-tags
+
+      - name: Ensure tag commit is reachable from main
+        id: check
+        shell: bash
+        run: |
+          TAG_SHA="$(git rev-list -n 1 "$GITHUB_REF")"
+          # ¿Está TAG_SHA en el historial de origin/main?
+          if git merge-base --is-ancestor "$TAG_SHA" origin/main; then
+            echo "on_main=true" >> "$GITHUB_OUTPUT"
+            echo "Tag $GITHUB_REF_NAME está sobre main ✅"
+          else
+            echo "on_main=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Tag $GITHUB_REF_NAME no está sobre main. Se omite publicación."
+          fi
+
+  release:
+    name: Build, Test, Pack & Publish
+    needs: verify-tag
+    if: needs.verify-tag.outputs.on_main == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: release-${{ github.ref }}
+      cancel-in-progress: false
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/packages.lock.json') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore -p:Version=${{ needs.verify-tag.outputs.version }}
+
+      - name: Test
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
+      - name: Pack NuGet package
+        run: |
+          dotnet pack src/BlazorSignalStore/BlazorSignalStore.csproj \
+            --configuration Release \
+            --no-build \
+            -p:PackageVersion=${{ needs.verify-tag.outputs.version }} \
+            --output ./artifacts
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: ./artifacts/*.nupkg
+
+      - name: Publish to NuGet
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        if: ${{ env.NUGET_API_KEY != '' }}
+        run: dotnet nuget push ./artifacts/*.nupkg \
+               --api-key ${{ secrets.NUGET_API_KEY }} \
+               --source https://api.nuget.org/v3/index.json \
+               --skip-duplicate
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ needs.verify-tag.outputs.version }}
+          draft: false
+          prerelease: false
+          files: |
+            ./artifacts/*.nupkg
